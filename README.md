@@ -48,4 +48,13 @@ Quero remover uma imagem local:
 ```console
 root@bdeveloperdeck101:~$ docker rmi ubuntu:14.04
 ```
+### __Containers executanto__
+Quero saber quais containers estão executando:
+```console
+root@bdeveloperdeck101:~$ docker ps
+```
+Criar um novo bash em um container executando:
+```console
+root@bdeveloperdeck101:~$ docker exec -it CONTAINER_NAME bash
+```
 
