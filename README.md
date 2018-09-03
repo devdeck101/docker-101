@@ -57,4 +57,90 @@ Criar um novo bash em um container executando:
 ```console
 root@bdeveloperdeck101:~$ docker exec -it CONTAINER_NAME bash
 ```
+### __Fazendo os Container conversarem__
+Funciona mas não é o melhor pois passa pelo host as mensagens:
+```console
+root@bdeveloperdeck101:~$ docker run --rm -ti -p 1234:1234 ubuntu:14.04 bash
+```
+Functiona mas infelizmente faz um link não dinâmico:
+
+Server
+```console
+root@bdeveloperdeck101:~$ docker run --rm -ti --name server ubuntu:14.04 bash
+```
+Client
+```console
+root@bdeveloperdeck101:~$ docker run --rm -ti --link server --name client ubuntu:14.04 bash
+```
+### __Fazendo os Container conversarem de forma correta__
+Criar uma rede:
+```console
+root@bdeveloperdeck101:~$ docker network create developerdeck101net
+```
+Criar um container:
+
+Server
+```console
+root@bdeveloperdeck101:~$ docker run --rm -ti --net=developerdeck101net --name server ubuntu:14.04 bash
+```
+
+Client
+```console
+root@bdeveloperdeck101:~$ docker run --rm -ti --link server --net:developerdeck101net --name client ubuntu:14.04 bash
+```
+
+### __Criando nosso Ambiente MERN__
+Backend Dockerfile
+```console
+FROM node:10.9.0-alpine
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+RUN npm install -g nodemon --quiet
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+Frontend Dockerfile
+```console
+FROM node:10.9.0-alpine
+RUN mkdir -p /usr/src/app
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+Docker compose file: docker-compose.yml
+```console
+version: '2'
+services:
+ mongodb:
+  image: "mongo"
+  ports:
+  - "27017:27017"
+ backend:
+  build: ./devdeck101-backend/
+  ports:
+   - "4000:4000"
+  volumes:
+   - ./devdeck101-backend:/usr/src/app
+  depends_on:
+   - mongodb
+ frontend:
+   build: ./devdeck101-frontend/
+   ports:
+    - "3000:3000"
+   volumes:
+    - ./devdeck101-frontend:/usr/src/app
+   depends_on:
+    - backend
+```
+Construir seu Ambiente
+```console
+root@bdeveloperdeck101:~$ docker compose build
+```
+Iniciar seu Ambiente
+```console
+root@bdeveloperdeck101:~$ docker compose up
+```
+Desligar/Baixar/Parar seu Ambiente
+```console
+root@bdeveloperdeck101:~$ docker compose down
+```
 
